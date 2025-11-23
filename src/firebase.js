@@ -35,16 +35,23 @@ const signup = async (name, email, password) => {
        })
     } catch (error) {
         console.log(error);
-        toast.error(error.code.split('/')[1].split('-').join(" "))
+        const msg = error?.code
+          ? (error.code.split('/')[1] || error.code).replace(/-/g, ' ')
+          : (error?.message || 'An error occurred');
+        toast.error(msg);
     }
 }
 
 const login = async (email, password) => {
     try {
-        signInWithEmailAndPassword(auth, email, password);
+        // await so rejection is caught by try/catch
+        await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.log(error);
-        toast.error(error.code.split('/')[1].split('-').join(" "))
+        const msg = error?.code
+          ? (error.code.split('/')[1] || error.code).replace(/-/g, ' ')
+          : (error?.message || 'An error occurred');
+        toast.error(msg);
     }
 }
 
