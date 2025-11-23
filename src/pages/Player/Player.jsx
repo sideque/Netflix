@@ -1,48 +1,58 @@
 import  { useEffect, useState } from 'react'
 import './player.css'
 import back_arrow_icon from '../../assets/back_arrow_icon.png'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 
 const Player = () => {
 
   const {id} = useParams();
+  const navigate = useNavigate();
 
-  const [apiData, setApiData] = useState({
-    name: "",
-    key: "",
-    published_at: "",
-    typeof: ""
-  })
+  const [apiData, setApiData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const options = {
-  method: 'GET',
-  headers: {
-    accept: 'application/json',
-    Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMjM5OTM1YzRmZjA1ODUzNjY2Y2MxYTMwNjdkODFkZSIsIm5iZiI6MTc2MzcxNDYzMC4xNzcsInN1YiI6IjY5MjAyNjQ2ZjQ0MDZjYzBiZjJlMzA2OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.GpP-d6DDxI5AfHBLufy53I2KI1Mfmafm8mTK7MiL4qg'
-  }
-};
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMjM5OTM1YzRmZjA1ODUzNjY2Y2MxYTMwNjdkODFkZSIsIm5iZiI6MTc2MzcxNDYzMC4xNzcsInN1YiI6IjY5MjAyNjQ2ZjQ0MDZjYzBiZjJlMzA2OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.GpP-d6DDxI5AfHBLufy53I2KI1Mfmafm8mTK7MiL4qg'
+    }
+  };
 
-useEffect(() => {
-
-  fetch(`https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`, options)
-    .then(res => res.json())
-    .then(res => setApiData(res.ressults[0]))
-    .catch(err => console.error(err));
-
-}, []);
-
+  useEffect(() => {
+    setLoading(true);
+    fetch(`https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`, options)
+      .then(res => res.json())
+      .then(res => {
+        const vids = res.results || [];
+        const yt = vids.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')) || vids[0] || null;
+        setApiData(yt);
+      })
+      .catch(err => {
+        console.error(err);
+        setApiData(null);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
 
   return (
     <div className='player'>
-        <img src={back_arrow_icon} alt="" />
-        <iframe width="90%" height="90%"
-          src={`https://www.youtube.com/embed/${apiData.key}`}
-        title='trailer' frameBorder='0' allowFullScreen></iframe>
+        <img src={back_arrow_icon} alt="back" onClick={() => navigate(-1)} style={{cursor: 'pointer'}} />
+        {loading ? (
+          <p style={{color: 'white'}}>Loading...</p>
+        ) : apiData && apiData.key ? (
+          <iframe width="90%" height="90%"
+            src={`https://www.youtube.com/embed/${apiData.key}`}
+            title='trailer' frameBorder='0' allowFullScreen></iframe>
+        ) : (
+          <div style={{color: 'white'}}>Trailer not available</div>
+        )}
+
         <div className="player-info">
-          <p>{apiData.published_at.slice(0, 10)}</p>
-          <p>{apiData.name}</p>
-          <p>{apiData.type}</p>
+          <p>{apiData?.published_at ? apiData.published_at.slice(0, 10) : '-'}</p>
+          <p>{apiData?.name || '-'}</p>
+          <p>{apiData?.type || '-'}</p>
         </div>
     </div>
   )
