@@ -6,9 +6,10 @@ import bell_icon from '../../assets/bell_icon.svg'
 import profile_img from '../../assets/profile_img.png'
 import caret_icon from '../../assets/caret_icon.svg'
 import { logout } from '../../firebase'
+import { useNavigate } from 'react-router-dom'
 
-const Navbar = () => {
-
+export const Navbar = () => {
+  const navigate = useNavigate();
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -26,16 +27,29 @@ const Navbar = () => {
 
   }, []);
 
+  function navbarchange() {
+    navigate('/wishlist')
+  }
+
+  function homenavigate() {
+    navigate('/')
+  }
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
+
   return (
     <div className='navbar' ref={navRef}>
       <div className='navbar-left'>
         <img src={logo} alt="" />
         <ul>
-          <li>Home</li>
+          <li onClick={homenavigate}>Home</li>
           <li>TV Shows</li>
           <li>Movies</li>
           <li>New & Popular</li>
-          <li>My List</li>
+          <li onClick={navbarchange}>My List</li>
           <li>Browse by Languages</li>
         </ul>
       </div>
@@ -47,7 +61,7 @@ const Navbar = () => {
           <img src={profile_img} alt="" className='profile' />
           <img src={caret_icon} alt="" />
           <div className="dropdown">
-            <p onClick={() => {logout()}}>Sign Out of Netflix</p>
+            <p onClick={handleLogout}>Sign Out of Netflix</p>
           </div>
         </div>
       </div>
@@ -55,4 +69,3 @@ const Navbar = () => {
   )
 }
 
-export default Navbar

@@ -6,8 +6,16 @@ import {
     signOut} from "firebase/auth"
 
 import { addDoc, 
+    arrayRemove, 
+    arrayUnion, 
     collection, 
-    getFirestore } from "firebase/firestore";
+    doc, 
+    getDocs, 
+    getFirestore, 
+    query,
+    updateDoc,
+    where} from "firebase/firestore";
+import Wishlist from "./pages/Wishlist/Wishlist";
 import { toast } from "react-toastify";
 
 const firebaseConfig = {
@@ -32,6 +40,7 @@ const signup = async (name, email, password) => {
         name, 
         authProvider: "local", 
         email,
+        Wishlist:[],
        })
     } catch (error) {
         console.log(error);
@@ -59,10 +68,74 @@ const logout = () => {
     signOut(auth);
 }
 
+// WhishList
+
+const AddToWishlist = async (userId, item) => {
+    if (!userId) return toast.error("You must be logged in to add items to Wishlist");
+    try {
+        const q = query(collection(db, "user"), where('uid', '==', userId));
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach(async (docSnap) => {
+            const userRef = doc(db, "user", docSnap.id);
+            await updateDoc(userRef, {
+                Wishlist: arrayUnion(item)
+            });
+            toast.success("Added to Wishlist")
+        });
+    } catch (error) {
+        console.error("Remove from wishlist error: ", error);
+        toast.error("Could not remove from wishlist.")
+    }
+}
+
+const removeFromWishlist = async (userId, movie) => {
+    try {
+        const q = query(collection(db, "user"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            toast.error("User not found");
+            return;
+        }
+
+        querySnapshot.forEach(async (docSnap) => {
+            const userRef = doc(db, "user", docSnap.id);
+            await updateDoc(userRef, {
+                Wishlist: arrayRemove(movie)
+            });
+            toast.success("Removed from Wishlist");
+        });
+    } catch (error) {
+        console.error("Error removing from wishlist: ", error);
+        toast.error("Could not remove from Wishlist")
+    }
+};
+
+const getWishlist = async (userId) => {
+    try {
+        const q = query(collection(db, "user"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const data = userDoc.data();
+            return data.Wishlist || [];
+        }
+        return [];
+    } catch (err) {
+        console.log(err);
+        return [];
+    }
+}
+
 export {
     auth,
     db,
     login,
     signup,
     logout,
+    AddToWishlist,
+    removeFromWishlist,
+    getWishlist,
 }

@@ -2,11 +2,23 @@ import React, { useEffect, useRef, useState } from "react";
 import "./TitleCards.css";
 import cards_data from "../../assets/cards/Cards_data";
 import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext/AuthContext";
+import { AddToWishlist, getWishlist, removeFromWishlist } from "../../firebase";
 
-const TitleCards = ({ title, category }) => {
+export const TitleCards = ({ title = "Popular on Netflix", category = "now_playing" }) => {
+  const { userId } = useAuth();
   const [apiData, setApiData] = useState([]);
-
+  const [wishlist, setWishlist] = useState([]);
   const cardsRef = useRef();
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      const data = await getWishlist(userId);
+      setWishlist(data || []);
+    }
+    console.log(wishlist, 'wishlist');
+    fetchWishlist();
+  }, [userId]);
 
 const options = {
   method: 'GET',
@@ -16,29 +28,42 @@ const options = {
   }
 };
 
-fetch('https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1', options)
-  .then(res => res.json())
-  .then(res => console.log(res))
-  .catch(err => console.error(err));
+// fetch('https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1', options)
+//   .then(res => res.json())
+//   .then(res => console.log(res))
+//   .catch(err => console.error(err));
 
   const handleWheel = (e) => {
     e.preventDefault;
     cardsRef.current.scrollLeft += e.deltaY;
   };
 
-  useEffect(() => {
-    fetch(
-      `https://api.themoviedb.org/3/movie/${
-        category ? category : "now_playing"
-      }?language=en-US&page=1`,
-      options
-    )
-      .then(res => res.json())
-      .then(res => setApiData(res.results))
-      .catch(err => console.error(err));
+  const toggleWishlist = async (id) => {
+    if (wishlist.includes(id)) {
+      await removeFromWishlist(userId, id);
+    }else{
+      await AddToWishlist(userId, id);
+    }
 
-      cardsRef.current.addEventListener('wheel', handleWheel);
-  }, []);
+    const data = await getWishlist(userId);
+    setWishlist(data || []);
+  }
+
+  useEffect(() => {
+  if (!category || typeof category !== "string") {
+    console.error("Category must be a string");
+    return;
+  }
+
+  fetch(
+    `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=1`,
+    options
+  )
+    .then(res => res.json())
+    .then(res => setApiData(res.results))
+    .catch(err => console.error(err));
+}, [category]);
+
 
   return (
     <div className="title-cards">
@@ -46,18 +71,24 @@ fetch('https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1', op
       <div className="card-list" ref={cardsRef}>
         {apiData.map((card, index) => {
           return (
+            <div className="card" key={index}>
             <Link to={`/player/${card.id}`} className="card" key={index}>
               <img
                 src={`https://image.tmdb.org/t/p/w500` + card.backdrop_path}
                 alt=""
-              />
+                />
               <p>{card.original_title}</p>
             </Link>
+            <div className={`wishlist-icon ${wishlist.includes(card.id) ? 'active' : ''}`}
+              onClick={() => toggleWishlist(card.id)}
+              title={wishlist.includes(card.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              {wishlist.includes(card.id) ? '❤️' : '♡'}
+            </div>
+            </div>
           );
         })}
       </div>
     </div>
   );
 };
-
-export default TitleCards;

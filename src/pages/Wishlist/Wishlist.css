@@ -1,0 +1,109 @@
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
+.container{
+    margin-top: 100px;
+    padding: 0 6%;
+
+}
+.container h1{
+  font-size: 50px;
+}
+.wishlist-container {
+  margin-top: 40px;
+  color: #fff;
+  width: 100%;
+}
+
+.wishlist-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.movie-card {
+  display: flex;
+  background-color: #111;
+  border-radius: 10px;
+  width: 1400px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+}
+
+.movie-thumbnail {
+  width: 300px;
+  height: auto;
+  object-fit: cover;
+}
+
+.movie-details {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.movie-title {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.movie-description {
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #ccc;
+}
+
+/* .watch-button {
+  padding: 10px 20px;
+  background-color: #e50914;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.watch-button:hover {
+  background-color: #f40612;
+}
+.Remove-button{
+  margin-left: 150px;
+ 
+} */
+
+.watch-button {
+  text-align: center;
+  text-decoration-line: none;
+  padding: 10px 16px;
+  background-color: #e50914;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.watch-button:hover {
+  background-color: #b00610;
+}
+
+.remove-button {
+  padding: 10px 16px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.remove-button:hover {
+  background-color: #333;
+}

@@ -1,10 +1,11 @@
 import  { useEffect, useState } from 'react'
 import './player.css'
 import back_arrow_icon from '../../assets/back_arrow_icon.png'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 
 const Player = () => {
-
+  const location = useLocation();
+  const fromWishlist = location.state?.from === "wishlist";
   const {id} = useParams();
   const navigate = useNavigate();
 
@@ -38,7 +39,13 @@ const Player = () => {
 
   return (
     <div className='player'>
-        <img src={back_arrow_icon} alt="back" onClick={() => navigate(-1)} style={{cursor: 'pointer'}} />
+        <img src={back_arrow_icon} alt="back" onClick={() => {
+          if (fromWishlist) {
+            navigate("/wishlist")
+          }else{
+            navigate("/")
+          }
+        }} style={{cursor: 'pointer'}} />
         {loading ? (
           <p style={{color: 'white'}}>Loading...</p>
         ) : apiData && apiData.key ? (
